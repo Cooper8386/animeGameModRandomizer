@@ -2,40 +2,56 @@ import os
 import random
 import json
 
+# Directory path
+directory = "G:\\3DMigoto\\Mods\\character"
 
-# Define the path to the main directory containing the subfolders
-main_directory = "G:\\3DMigoto\\Mods\\character"
+# Read subfolders from JSON file
+with open("subfolders.json", "r") as file:
+    subfolders = json.load(file)
 
-# Load the subfolders from the JSON file
-with open('subfolders.json') as f:
-    subfolders = json.load(f)
+# Read excluded mods from JSON file
+with open("excluded_mods_test.json", "r") as file:
+    excluded_mods = json.load(file)
 
-# Load the excluded mods from the JSON file
-with open('exclude.json') as f:
-    excluded_mods = json.load(f)
+# Function to disable a mod by adding the "DISABLED_" prefix
+def disable_mod(mod_path):
+    mod_name = os.path.basename(mod_path)
+    if not mod_name.startswith("DISABLED_") and mod_name not in excluded_mods:
+        new_mod_name = "DISABLED_" + mod_name
+        new_mod_path = os.path.join(os.path.dirname(mod_path), new_mod_name)
+        os.rename(mod_path, new_mod_path)
+        print(f"Disabled mod: {mod_name}")
+    elif mod_name in excluded_mods:
+        print(f"Skipped excluded mod: {mod_name}")
 
-# Iterate through each subfolder
+# Function to enable a mod by removing the "DISABLED_" prefix
+def enable_mod(mod_path):
+    mod_name = os.path.basename(mod_path)
+    if mod_name.startswith("DISABLED_") and mod_name[9:] not in excluded_mods:
+        new_mod_name = mod_name[9:]
+        new_mod_path = os.path.join(os.path.dirname(mod_path), new_mod_name)
+        os.rename(mod_path, new_mod_path)
+        print(f"Enabled mod: {new_mod_name}")
+    elif mod_name[9:] in excluded_mods:
+        print(f"Skipped excluded mod: {mod_name}")
+
+# Iterate over each subfolder
 for subfolder in subfolders:
-    # Define the path to the subfolder
-    subfolder_path = os.path.join(main_directory, subfolder)
-
-    # Get a list of all the mod folders in the subfolder
+    subfolder_path = os.path.join(directory, subfolder)
+    
+    # Get a list of mod folders in the subfolder
     mod_folders = [folder for folder in os.listdir(subfolder_path) if os.path.isdir(os.path.join(subfolder_path, folder))]
-
-    # Iterate through each mod folder
+    
+    # Disable all mods in the subfolder except excluded mods
     for mod_folder in mod_folders:
-        # Check if the mod folder is excluded
-        if mod_folder in excluded_mods:
-            # If the mod folder is excluded, skip it
-            print(f"Mod folder {mod_folder} is excluded, skipping.")
-            continue
-
-        # Check if the mod folder is already disabled
-        if mod_folder.startswith("DISABLED_"):
-            # If the mod folder is already disabled, do nothing
-            print(f"Mod folder {mod_folder} is already disabled.")
-        else:
-            # If the mod folder is not disabled, disable it by adding the "DISABLED_" prefix
-            new_name = "DISABLED_" + mod_folder
-            os.rename(os.path.join(subfolder_path, mod_folder), os.path.join(subfolder_path, new_name))
-            print(f"Mod folder {mod_folder} has been disabled.")
+        mod_path = os.path.join(subfolder_path, mod_folder)
+        disable_mod(mod_path)
+    
+    # Get a list of enabled mods (excluding excluded mods)
+    enabled_mods = [folder for folder in mod_folders if not folder.startswith("DISABLED_") and folder not in excluded_mods]
+    
+    # Randomly enable one mod in the subfolder (if there are any enabled mods left)
+    if enabled_mods:
+        random_mod = random.choice(enabled_mods)
+        mod_path = os.path.join(subfolder_path, random_mod)
+        enable_mod(mod_path)
