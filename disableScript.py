@@ -1,7 +1,6 @@
 import os
 import random
 import json
-from datetime import datetime
 
 # Directory path
 directory = "G:\\3DMigoto\\Mods\\character"
@@ -36,23 +35,10 @@ def enable_mod(mod_path):
     elif mod_name[9:] in excluded_mods:
         return f"Skipped excluded mod: {mod_name}"
 
-# Get the current date and time
-now = datetime.now()
-timestamp = now.strftime("%Y-%m-%d_%H-%M-%S")
-
-# Create the "logs" subfolder if it doesn't exist
-script_dir = os.path.dirname(os.path.abspath(__file__))
-logs_dir = os.path.join(script_dir, "logs")
-os.makedirs(logs_dir, exist_ok=True)
-
-# Open a log file in the "logs" subfolder
-log_file_path = os.path.join(logs_dir, f"mod_changes_{timestamp}.log")
-log_file = open(log_file_path, "w")
-
 # Iterate over each subfolder
 for subfolder in subfolders:
     subfolder_path = os.path.join(directory, subfolder)
-    log_file.write(f"Subfolder: {subfolder}\n")
+    print(f"Subfolder: {subfolder}")
     
     # Get a list of mod folders in the subfolder
     mod_folders = [folder for folder in os.listdir(subfolder_path) if os.path.isdir(os.path.join(subfolder_path, folder))]
@@ -76,14 +62,9 @@ for subfolder in subfolders:
         if result:
             disabled_mods.append(result)
     
-    # Write the changes made in the subfolder to the log file
+    # Print the changes made in the subfolder
     if disabled_mods:
-        log_file.write("\n".join(disabled_mods) + "\n\n")
+        print("\n".join(disabled_mods))
     else:
-        log_file.write("No changes made in this subfolder.\n\n")
-
-# Close the log file
-log_file.close()
-
-# Print a message indicating that mods were randomized
-print("Mods disabled")
+        print("No changes made in this subfolder.")
+    print()
