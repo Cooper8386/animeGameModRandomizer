@@ -2,6 +2,7 @@ import os
 import random
 import json
 from datetime import datetime
+import glob
 
 # Directory path
 directory = "G:\\3DMigoto\\Mods\\character"
@@ -44,6 +45,12 @@ timestamp = now.strftime("%Y-%m-%d_%H-%M-%S")
 script_dir = os.path.dirname(os.path.abspath(__file__))
 logs_dir = os.path.join(script_dir, "logs")
 os.makedirs(logs_dir, exist_ok=True)
+
+# Remove the oldest log file if there will be more than 5 log files
+log_files = glob.glob(os.path.join(logs_dir, "mod_changes_*.log"))
+if len(log_files) >= 5:
+    oldest_log_file = min(log_files, key=os.path.getctime)
+    os.remove(oldest_log_file)
 
 # Open a log file in the "logs" subfolder
 log_file_path = os.path.join(logs_dir, f"mod_changes_{timestamp}.log")
