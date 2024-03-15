@@ -65,17 +65,6 @@ for subfolder in subfolders:
         if result:
             disabled_mods.append(result)
     
-    # Get a list of enabled mods (excluding excluded mods)
-    enabled_mods = [folder for folder in mod_folders if not folder.startswith("DISABLED_") and folder not in excluded_mods]
-    
-    # Randomly enable one mod in the subfolder (if there are any enabled mods left)
-    if enabled_mods:
-        random_mod = random.choice(enabled_mods)
-        mod_path = os.path.join(subfolder_path, random_mod)
-        result = enable_mod(mod_path)
-        if result:
-            disabled_mods.append(result)
-    
     # Write the changes made in the subfolder to the log file
     if disabled_mods:
         log_file.write("\n".join(disabled_mods) + "\n\n")
